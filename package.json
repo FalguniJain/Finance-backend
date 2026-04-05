@@ -5,14 +5,13 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "npm install",
-    "start": "npx ts-node src/server.ts",
+    "build": "npm install @prisma/client@5.10.2 && npm install prisma@5.10.2 && ./node_modules/.bin/prisma generate && node -r ts-node/register src/server.ts",
+    "start": "node -r ts-node/register src/server.ts",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:seed": "ts-node prisma/seed.ts",
     "db:studio": "prisma studio",
-    "test": "jest --runInBand --forceExit",
-    "postinstall": "npx prisma generate"
+    "test": "jest --runInBand --forceExit"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

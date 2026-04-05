@@ -5,14 +5,13 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "echo build done",
-    "start": "node -r ts-node/register src/server.ts",
+    "build": "prisma generate && tsc",
+    "start": "node dist/index.jss",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:seed": "ts-node prisma/seed.ts",
     "db:studio": "prisma studio",
-    "test": "jest --runInBand --forceExit",
-    "postinstall": "prisma generate"
+    "test": "jest --runInBand --forceExit"
   },
   "dependencies": {
     "@types/bcryptjs": "2.4.6",
@@ -41,8 +40,8 @@
     "typescript": "5.4.2",
     "winston": "^3.12.0",
     "zod": "^3.22.4",
-    "@prisma/client": "^5.0.0",
-    "prisma": "^5.0.0"
+    "@prisma/client": "^5.x",
+    "prisma": "^5.x"
   },
   "devDependencies": {
     "@prisma/client": "5.22.0",

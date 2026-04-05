@@ -1,9 +1,11 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-const getEnv = (key, fallback) => {
+const getEnv = (key: string, fallback?: string): string => {
   const value = process.env[key] ?? fallback;
-  if (value === undefined) throw new Error('Missing env var: ' + key);
+  if (value === undefined) {
+    throw new Error('Missing required environment variable: ' + key);
+  }
   return value;
 };
 

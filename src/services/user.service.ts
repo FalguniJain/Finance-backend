@@ -3,7 +3,10 @@ import { AuthService } from './auth.service';
 import { AppError } from '../middlewares/error.middleware';
 import { buildPaginationMeta, getPaginationOffset } from '../utils/helpers';
 
-const USER_SELECT = { id: true, name: true, email: true, role: true, status: true, createdAt: true, updatedAt: true } as const;
+const USER_SELECT = {
+  id: true, name: true, email: true, role: true,
+  status: true, createdAt: true, updatedAt: true,
+} as const;
 
 export class UserService {
   static async createUser(dto: { name: string; email: string; password: string; role?: any }) {
@@ -18,7 +21,12 @@ export class UserService {
 
   static async listUsers(page = 1, limit = 20, search?: string) {
     const offset = getPaginationOffset(page, limit);
-    const where = search ? { OR: [{ name: { contains: search, mode: 'insensitive' as const } }, { email: { contains: search, mode: 'insensitive' as const } }] } : {};
+    const where: any = search ? {
+      OR: [
+        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+      ],
+    } : {};
     const [users, total] = await prisma.$transaction([
       prisma.user.findMany({ where, select: USER_SELECT, skip: offset, take: limit, orderBy: { createdAt: 'desc' } }),
       prisma.user.count({ where }),
@@ -49,15 +57,19 @@ export class UserService {
   }
 
   static async getUserStats() {
-    const [total, byRole, byStatus] = await prisma.$transaction([
+    const [total, allUsers] = await prisma.$transaction([
       prisma.user.count(),
-      prisma.user.groupBy({ by: ['role'], _count: true }),
-      prisma.user.groupBy({ by: ['status'], _count: true }),
+      prisma.user.findMany({ select: { role: true, status: true } }),
     ]);
-    return {
-      total,
-      byRole: Object.fromEntries(byRole.map((r) => [r.role, r._count])),
-      byStatus: Object.fromEntries(byStatus.map((s) => [s.status, s._count])),
-    };
+
+    const byRole: Record<string, number> = {};
+    const byStatus: Record<string, number> = {};
+
+    for (const user of allUsers) {
+      byRole[user.role] = (byRole[user.role] || 0) + 1;
+      byStatus[user.status] = (byStatus[user.status] || 0) + 1;
+    }
+
+    return { total, byRole, byStatus };
   }
 }

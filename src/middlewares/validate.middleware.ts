@@ -9,7 +9,7 @@ export const validate = (
     const result = schema.safeParse(req[part]);
     if (!result.success) {
       const errors: Record<string, string[]> = {};
-      for (const issue of result.error.issues) {
+      for (const issue of (result as any).error.issues) {
         const path = issue.path.join('.') || '_root';
         if (!errors[path]) errors[path] = [];
         errors[path].push(issue.message);
@@ -17,7 +17,7 @@ export const validate = (
       res.status(400).json({ success: false, message: 'Validation failed', errors });
       return;
     }
-    (req as Record<string, unknown>)[part] = result.data;
+    (req as any)[part] = result.data;
     next();
   };
 };
